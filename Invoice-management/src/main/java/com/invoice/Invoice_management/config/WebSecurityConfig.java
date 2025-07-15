@@ -25,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+//Purpose: Override the HTTP method. In every http method, now it will be config in here.
 public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserService userService;
@@ -32,8 +33,8 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})
+                .csrf(csrf -> csrf.disable()) // ❌ Tắt CSRF vì dùng JWT (không dùng session)
+                .cors(cors -> {})             // ✅ Cho phép CORS (hỗ trợ gọi API từ frontend)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/random").permitAll()
@@ -41,6 +42,8 @@ public class WebSecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                //addBefore: moi request se duoc kiem tra JWT truoc tien
+                //Neu hop le -> set user vao SecurityContextHolder (o file jwtAuthenticationFilter)
         return http.build();
     }
 
@@ -52,8 +55,8 @@ public class WebSecurityConfig {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userService);    // lấy user từ DB
+        provider.setPasswordEncoder(passwordEncoder()); // dùng BCrypt để so sánh mật khẩu
         return provider;
     }
 

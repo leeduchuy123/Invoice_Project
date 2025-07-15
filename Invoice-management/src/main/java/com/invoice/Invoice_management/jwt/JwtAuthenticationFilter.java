@@ -43,11 +43,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // Lấy thông tin người dùng từ id
                 UserDetails userDetails = customUserDetailsService.loadUserById(userId);
                 if (userDetails != null) {
-                    // Nếu người dùng hợp lệ, set thông tin cho Seturity Context
+                    // Nếu người dùng hợp lệ, set thông tin cho Security Context
                     UsernamePasswordAuthenticationToken
-                            authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                            authentication = new UsernamePasswordAuthenticationToken(
+                                    userDetails, //pricipal: thông tin người dùng, thường là UserDetails
+                                    null,   //credentials: mật khẩu hoac null nếu đã xác thực rồi
+                                    userDetails.getAuthorities() //Danh sách quyền, vai trò của người dùng
+                    );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                    // Đăng nhập người dùng vào hệ thống (gán vào context toàn cục)
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
