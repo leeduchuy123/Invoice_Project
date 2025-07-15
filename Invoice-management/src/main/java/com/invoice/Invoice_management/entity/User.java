@@ -17,7 +17,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String fullname;
+    private String username;
 
     @NotNull
     @Size(min=6, message = "Password must be at least 6 characters")
@@ -34,8 +34,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Order> orders;
 
-    public User(String fullname, String password, String email, Role role) {
-        this.fullname = fullname;
+    public User(String username, String password, String email, Role role) {
+        this.username = username;
         this.password = password;
         this.email = email;
         this.role = role;
