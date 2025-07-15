@@ -3,6 +3,7 @@ package com.invoice.Invoice_management.service;
 import com.invoice.Invoice_management.dto.CustomerDTO;
 import com.invoice.Invoice_management.entity.Customer;
 import com.invoice.Invoice_management.repository.CustomerRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CustomerService {
     @Autowired
     private CustomerRepository customerRespository;
@@ -58,5 +60,11 @@ public class CustomerService {
     public List<CustomerDTO> findCustomersByToken(String token) {
         List<Customer> customers = customerRespository.findCustomersByToken(token);
         return customers.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public Optional<CustomerDTO> getCustomerById(Long id) {
+        return Optional.ofNullable(customerRespository.findCustomerById(id)
+                .map(this::toDTO)
+                .orElseThrow(() -> new IllegalArgumentException("Customer not found with id: " + id)));
     }
 }

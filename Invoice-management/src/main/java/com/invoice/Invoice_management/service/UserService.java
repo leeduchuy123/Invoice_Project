@@ -26,6 +26,4 @@ public class UserService {
         List<User> users = userRepository.findUsersByToken(token);
         return users.stream().map(this::toDTO).collect(Collectors.toList());
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.invoice.Invoice_management.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,6 @@ public class Role {
     }
 
     @OneToMany(mappedBy = "role")
+    @JsonIgnore
     private List<User> users;
 }
