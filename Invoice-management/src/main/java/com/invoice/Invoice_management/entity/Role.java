@@ -16,8 +16,8 @@ public class Role {
     private Long id;
     private String roleName;
     private String description;
-    //Admin: full control
-    //User: Create invoice only
+    //ADMIN: full control
+    //USER Create invoice only
 
     public Role(String roleName, String description) {
         this.roleName = roleName;

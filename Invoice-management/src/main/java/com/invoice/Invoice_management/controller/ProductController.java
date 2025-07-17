@@ -3,10 +3,10 @@ package com.invoice.Invoice_management.controller;
 import com.invoice.Invoice_management.dto.ProductDTO;
 import com.invoice.Invoice_management.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/products")
@@ -15,18 +15,21 @@ public class ProductController {
     private ProductService productService;
 
     //Them san pham moi
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ProductDTO addProduct(@RequestBody ProductDTO productDTO) {
         return productService.addProduct(productDTO);
     }
 
     //Chinh sua thong tin san pham
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ProductDTO updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
         return productService.updateProduct(id, productDTO);
     }
 
     //Xoa 1 san pham
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);

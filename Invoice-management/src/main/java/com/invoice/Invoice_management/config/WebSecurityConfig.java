@@ -2,18 +2,13 @@ package com.invoice.Invoice_management.config;
 
 import com.invoice.Invoice_management.jwt.JwtAuthenticationFilter;
 import com.invoice.Invoice_management.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.BeanIds;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity(securedEnabled = true)
 //Purpose: Override the HTTP method. In every http method, now it will be config in here.
 public class WebSecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -37,7 +33,10 @@ public class WebSecurityConfig {
                 .cors(cors -> {})             // ✅ Cho phép CORS (hỗ trợ gọi API từ frontend)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/random").permitAll()
+                        .requestMatchers("/api/random",
+                                "/api/login",
+                                "/api/products/**")
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
