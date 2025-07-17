@@ -1,9 +1,14 @@
 package com.invoice.Invoice_management.controller;
 
 import com.invoice.Invoice_management.entity.CustomUserDetails;
+import com.invoice.Invoice_management.entity.Role;
+import com.invoice.Invoice_management.entity.User;
 import com.invoice.Invoice_management.jwt.JwtTokenProvider;
 import com.invoice.Invoice_management.payload.LoginRequest;
-import com.invoice.Invoice_management.payload.LoginResponse;
+import com.invoice.Invoice_management.payload.AuthResponse;
+import com.invoice.Invoice_management.payload.RegisterRequest;
+import com.invoice.Invoice_management.repository.RoleRepository;
+import com.invoice.Invoice_management.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,21 +17,29 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 @EnableMethodSecurity(prePostEnabled = true)
 public class AuthController {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtTokenProvider tokenProvider;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public LoginResponse authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public AuthResponse loginUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         // Xác thực từ username và password.
         Authentication authentication = authenticationManager.authenticate(
@@ -42,7 +55,21 @@ public class AuthController {
 
         // Trả về jwt cho người dùng.
         String jwt = tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
-        return new LoginResponse(jwt);
+        return new AuthResponse(jwt);
+    }
+
+    @PostMapping("/register")
+    public User registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        //Mac dinh Role là "USER"
+        Role userRole = roleRepository.findByRoleName("USER");
+
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setRole(userRole);
+
+        return userRepository.save(user);
     }
 
     // Api /api/random yêu cầu phải xác thực mới có thể request

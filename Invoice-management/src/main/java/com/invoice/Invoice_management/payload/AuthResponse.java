@@ -3,11 +3,11 @@ package com.invoice.Invoice_management.payload;
 import lombok.Data;
 
 @Data
-public class LoginResponse {
+public class AuthResponse {
     private String accessToken;
     private String tokenType = "Bearer";
 
-    public LoginResponse(String accessToken) {
+    public AuthResponse(String accessToken) {
         this.accessToken = accessToken;
     }
 }
