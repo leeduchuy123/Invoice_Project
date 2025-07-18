@@ -2,6 +2,7 @@ package com.invoice.Invoice_management.service;
 
 import com.invoice.Invoice_management.dto.OrderCreateRequest;
 import com.invoice.Invoice_management.dto.OrderDTO;
+import com.invoice.Invoice_management.dto.OrderDetailDTO;
 import com.invoice.Invoice_management.entity.*;
 import com.invoice.Invoice_management.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +43,7 @@ public class OrderService {
             total += detail.getTotal_per_product();
 
             orderDetailRepository.save(detail);
+            order.getOrderDetails().add(detail); //cập nhật lại danh sách
         }
 
         order.setTotalPrice(total);
@@ -47,11 +51,20 @@ public class OrderService {
     }
 
     public OrderDTO convertToDTO(Order order) {
+        List<OrderDetailDTO> orderDetailDTOs = order.getOrderDetails().stream()
+                .map(detail -> new OrderDetailDTO(
+                        detail.getProduct().getName(),
+                        detail.getQuantity(),
+                        detail.getProduct().getPrice(),
+                        detail.getTotal_per_product()
+                ))
+                .collect(Collectors.toList());
         return new OrderDTO(
                 order.getId(),
                 order.getTotalPrice(),
                 order.getCustomer().getFullname(),
-                order.getCreatedAt().toString()
+                order.getCreatedAt().toString(),
+                orderDetailDTOs
         );
     }
 

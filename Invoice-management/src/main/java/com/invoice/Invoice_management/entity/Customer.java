@@ -24,7 +24,7 @@ public class Customer {
     @Email(message = "Email is not validation", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     private String email;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 
     public Customer(String fullname, String address, String phoneNumber, String email) {

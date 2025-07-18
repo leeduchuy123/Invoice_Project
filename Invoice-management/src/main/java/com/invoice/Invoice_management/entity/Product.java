@@ -31,7 +31,7 @@ public class Product {
     @NotNull
     private String unit;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails;
 
     public Product(String name, double price, String unit) {

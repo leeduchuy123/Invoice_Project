@@ -31,7 +31,7 @@ public class User {
     private Role role;
 
     //mappedBy = user: khoa ngoai nam o phia Order, thuoc tinh "user" la noi dinh nghia quan he nay
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orders;
 
     public User(String username, String password, String email, Role role) {
