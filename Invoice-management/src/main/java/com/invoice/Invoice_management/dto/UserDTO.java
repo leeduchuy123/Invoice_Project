@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserDTO {
     private Long id;
-    private String fullname;
+    private String username;
     private String email;
     private String roleName;    //Chỉ lấy tên role
 
-    public UserDTO(String fullname, String email, String roleName) {
-        this.fullname = fullname;
+    public UserDTO(String username, String email, String roleName) {
+        this.username = username;
         this.email = email;
         this.roleName = roleName;
     }

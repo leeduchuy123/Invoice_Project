@@ -36,7 +36,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/random",
                                 "/api/login",
                                 "/api/register",
-                                "/api/products/**")
+                                "/api/products/**",
+                                "/api/**")
                         .permitAll()
                         .anyRequest().authenticated()
                 )

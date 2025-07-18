@@ -27,11 +27,11 @@ public class OrderDetail {
 
     private double total_per_product;
 
-    public OrderDetail(Order order, Product product, int quantity, double price) {
+    public OrderDetail(Order order, Product product, int quantity) {
         this.order = order;
         this.product = product;
         this.quantity = quantity;
-        this.price = price;
+        this.price = product.getPrice();
         this.total_per_product = quantity * price;
     }
 }
