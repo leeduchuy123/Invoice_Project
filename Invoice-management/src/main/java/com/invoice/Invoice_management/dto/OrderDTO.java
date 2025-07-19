@@ -14,5 +14,6 @@ public class OrderDTO {
     private double totalPrice;
     private String customerName;
     private String createdAt;
+    private String status;
     private List<OrderDetailDTO> orderDetails;
 }

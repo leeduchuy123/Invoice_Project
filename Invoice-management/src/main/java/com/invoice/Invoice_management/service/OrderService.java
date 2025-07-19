@@ -6,6 +6,10 @@ import com.invoice.Invoice_management.dto.OrderDetailDTO;
 import com.invoice.Invoice_management.entity.*;
 import com.invoice.Invoice_management.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,11 +68,42 @@ public class OrderService {
                 order.getTotalPrice(),
                 order.getCustomer().getFullname(),
                 order.getCreatedAt().toString(),
+                order.getStatus().name(),
                 orderDetailDTOs
         );
     }
 
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
+    }
+
+    @Transactional
+    public List<OrderDTO> getAllOrder() {
+        List<Order> orders = orderRepository.findAll();
+        return orders.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Page<OrderDTO> getOrdersByPage(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Order> orderPage = orderRepository.findAll(pageable);
+
+        return orderPage.map(this::convertToDTO);   // giữ phân trang, chỉ chuyển đổi từng item
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderDTO> searchOrdersByCustomerName(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Order> orders = orderRepository.findByCustomerNameContainingIgnoreCase(keyword, pageable);
+
+        return orders.map(this::convertToDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderDTO> searchOrdersByProductName(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Order> orders = orderRepository.findByProductNameContainingIgnoreCase(keyword, pageable);
+
+        return orders.map(this::convertToDTO);
     }
 }
