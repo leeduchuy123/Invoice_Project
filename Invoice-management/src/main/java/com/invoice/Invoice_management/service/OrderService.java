@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,11 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+
+    //Key Redis for get 100 recent orders
+    private final String RECENT_ORDER_KEY = "orders:recent";
+
+    private final RedisTemplate<Object, Object> redisTemplate;
 
     @Transactional
     public Order createOrder(OrderCreateRequest request) {
@@ -51,7 +57,13 @@ public class OrderService {
         }
 
         order.setTotalPrice(total);
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+
+        //Cập nhật Redis List
+        redisTemplate.opsForList().leftPush(RECENT_ORDER_KEY, order.getId());
+        redisTemplate.opsForList().trim(RECENT_ORDER_KEY, 0, 99);
+
+        return order;
     }
 
     public OrderDTO convertToDTO(Order order) {
@@ -105,5 +117,18 @@ public class OrderService {
         Page<Order> orders = orderRepository.findByProductNameContainingIgnoreCase(keyword, pageable);
 
         return orders.map(this::convertToDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDTO> getRecentOrders() {
+        List<Object> orderIds = redisTemplate.opsForList().range(RECENT_ORDER_KEY, 0, -1);
+        List<Order> orders = orderRepository.findAllById(
+                orderIds.stream().map(id -> Long.parseLong(id.toString())).toList()
+        );
+
+        return orders.stream()
+                .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }

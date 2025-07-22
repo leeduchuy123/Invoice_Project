@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
+
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
 
     @Query("SELECT o FROM Order o " +
@@ -20,4 +22,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
             "JOIN od.product p " +
             "WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :productName, '%'))")
     Page<Order> findByProductNameContainingIgnoreCase(@Param("productName") String productName, Pageable pageable);
+
+    @Query("SELECT SUM(o.totalPrice) FROM Order o " +
+            "WHERE o.createdAt BETWEEN :start AND :end")
+    Double sumRevenueBetween(@Param("start") LocalDateTime start, @Param("end")LocalDateTime end);
 }

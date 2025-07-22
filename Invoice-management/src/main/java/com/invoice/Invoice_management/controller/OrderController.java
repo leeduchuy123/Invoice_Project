@@ -66,4 +66,10 @@ public class OrderController {
         Page<OrderDTO> result = orderService.searchOrdersByProductName(keyword, page, size);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/recent")
+    public ResponseEntity<List<OrderDTO>> getRecentOrders() {
+        List<OrderDTO> recentOrders = orderService.getRecentOrders();
+        return ResponseEntity.ok(recentOrders);
+    }
 }
