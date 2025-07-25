@@ -6,6 +6,7 @@ import com.invoice.Invoice_management.dto.OrderDetailDTO;
 import com.invoice.Invoice_management.entity.*;
 import com.invoice.Invoice_management.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +32,7 @@ public class OrderService {
     //Key Redis for get 100 recent orders
     private final String RECENT_ORDER_KEY = "orders:recent";
 
-    private final RedisTemplate<Object, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public Order createOrder(OrderCreateRequest request) {
@@ -59,11 +61,57 @@ public class OrderService {
         order.setTotalPrice(total);
         order = orderRepository.save(order);
 
+        // Cập nhật doanh thu trong Redis
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime orderDate = order.getCreatedAt();
+        if(orderDate.toLocalDate().isEqual(now.toLocalDate())) {
+            String redisKey = getRevenueRedisKey(orderDate);
+
+            String cachedRevenue = redisTemplate.opsForValue().get(redisKey);
+            if (cachedRevenue != null) {
+                // Nếu đã có key, tăng doanh thu lên
+                try {
+                    double currentRevenue = Double.parseDouble(cachedRevenue);
+                    double updatedRevenue = currentRevenue + order.getTotalPrice();
+                    redisTemplate.opsForValue().set(redisKey, Double.toString(updatedRevenue));
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("Invalid revenue format in Redis", e);
+                }
+            } else {
+                // Nếu chưa có key → tính lại toàn bộ revenue trong ngày → lưu vào Redis
+                double revenue = orderRepository.sumRevenueBetween(orderDate.toLocalDate().atStartOfDay(), now);
+                redisTemplate.opsForValue().set(redisKey, Double.toString(revenue));
+            }
+        }
+
         //Cập nhật Redis List
-        redisTemplate.opsForList().leftPush(RECENT_ORDER_KEY, order.getId());
+        redisTemplate.opsForList().leftPush(RECENT_ORDER_KEY, Long.toString(order.getId()));
         redisTemplate.opsForList().trim(RECENT_ORDER_KEY, 0, 99);
 
         return order;
+    }
+
+    //Hanlde tracking the revenue of day
+    private String getRevenueRedisKey(LocalDateTime dateTime) {
+        return "revenue:" + dateTime.toLocalDate().toString();
+    }
+
+    @Transactional(readOnly = true)
+    public double getTodayRevenue() {
+        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime now = LocalDateTime.now();
+        String redisKey = getRevenueRedisKey(now);
+
+        String cached = redisTemplate.opsForValue().get(redisKey);
+        if(cached != null) {
+            return Double.parseDouble(cached);
+        }
+
+        Double revenue = orderRepository.sumRevenueBetween(startOfDay, now);
+        revenue = (revenue != null) ? revenue : 0.0;
+
+        redisTemplate.opsForValue().set(redisKey, Double.toString(revenue));
+        return revenue;
     }
 
     public OrderDTO convertToDTO(Order order) {
@@ -121,9 +169,9 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<OrderDTO> getRecentOrders() {
-        List<Object> orderIds = redisTemplate.opsForList().range(RECENT_ORDER_KEY, 0, -1);
+        List<String> orderIds = redisTemplate.opsForList().range(RECENT_ORDER_KEY, 0, -1);
         List<Order> orders = orderRepository.findAllById(
-                orderIds.stream().map(id -> Long.parseLong(id.toString())).toList()
+                orderIds.stream().map(id -> Long.parseLong(id)).toList()
         );
 
         return orders.stream()

@@ -72,4 +72,10 @@ public class OrderController {
         List<OrderDTO> recentOrders = orderService.getRecentOrders();
         return ResponseEntity.ok(recentOrders);
     }
+
+    @GetMapping("/today-revenue")
+    public ResponseEntity<Double> getTodayRevenue() {
+        double revenue = orderService.getTodayRevenue();
+        return ResponseEntity.ok(revenue);
+    }
 }
