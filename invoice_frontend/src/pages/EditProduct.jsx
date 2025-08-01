@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import ProductService from "../Services/ProductService.jsx";
+import ProductService from "../Services/api.jsx";
 
 const EditProduct = () => {
     const navigate = useNavigate();

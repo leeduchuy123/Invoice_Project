@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
-import ProductService from "../Services/ProductService.jsx";
+import ProductService from "../Services/api.jsx";
 
 const AddProduct = () => {
     const navigate = useNavigate();

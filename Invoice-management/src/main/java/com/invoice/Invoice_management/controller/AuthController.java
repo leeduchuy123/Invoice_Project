@@ -1,5 +1,6 @@
 package com.invoice.Invoice_management.controller;
 
+import com.invoice.Invoice_management.dto.UserDTO;
 import com.invoice.Invoice_management.entity.CustomUserDetails;
 import com.invoice.Invoice_management.entity.Role;
 import com.invoice.Invoice_management.entity.User;
@@ -11,6 +12,7 @@ import com.invoice.Invoice_management.repository.RoleRepository;
 import com.invoice.Invoice_management.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,7 +61,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public User registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         //Mac dinh Role là "USER"
         Role userRole = roleRepository.findByRoleName("USER");
 
@@ -69,7 +71,15 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setRole(userRole);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        UserDTO response = new UserDTO(savedUser.getUsername(), savedUser.getEmail(), savedUser.getRole().getRoleName());
+
+        long start = System.currentTimeMillis();
+        long end = System.currentTimeMillis();    // 🕒 Kết thúc đo thời gian
+        System.out.println("Register API duration: " + (end - start) + " ms");
+
+        return ResponseEntity.ok(response);
     }
 
     // Api /api/random yêu cầu phải xác thực mới có thể request
