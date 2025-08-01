@@ -41,7 +41,7 @@ function SignUpPage() {
             });
 
             console.log(response.data);
-            navigate('/products')
+            navigate('/')
         } catch(error) {
             console.error('Signup failed:', error.response ? error.response.data : error.message);
             setError(error.response ? error.response.data : error.message);

@@ -15,21 +15,21 @@ public class ProductController {
     private ProductService productService;
 
     //Them san pham moi
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ProductDTO addProduct(@RequestBody ProductDTO productDTO) {
         return productService.addProduct(productDTO);
     }
 
     //Chinh sua thong tin san pham
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ProductDTO updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
         return productService.updateProduct(id, productDTO);
     }
 
     //Xoa 1 san pham
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
