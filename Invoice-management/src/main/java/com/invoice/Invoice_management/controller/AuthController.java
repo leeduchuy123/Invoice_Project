@@ -12,6 +12,7 @@ import com.invoice.Invoice_management.repository.RoleRepository;
 import com.invoice.Invoice_management.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,6 +22,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -61,7 +65,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        // Kiểm tra username đã tồn tại chưa
+        if (userRepository.existsByUsername(registerRequest.getUsername())) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Username already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
+
         //Mac dinh Role là "USER"
         Role userRole = roleRepository.findByRoleName("USER");
 

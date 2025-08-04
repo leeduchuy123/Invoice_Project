@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from "react-router-dom";
 import "../assets/styles/Signup.css";
@@ -10,6 +10,7 @@ function SignUpPage() {
     const[email, setEmail] = useState('');
     const[confirmPassword, setConfirmPassword] = useState('');
     const[error, setError] = useState('');
+    const[loading, setLoading] = useState(false);
 
     useEffect(() => {
         setUsername("");
@@ -22,6 +23,8 @@ function SignUpPage() {
 
     const handleSignup = async (e) => {
         e.preventDefault();
+
+        if(loading)     return;
 
         try {
             if(!username || !email || !password || !confirmPassword) {
@@ -44,7 +47,13 @@ function SignUpPage() {
             navigate('/')
         } catch(error) {
             console.error('Signup failed:', error.response ? error.response.data : error.message);
-            setError(error.response ? error.response.data : error.message);
+            if (error.response && error.response.data && error.response.data.message) {
+                setError(error.response.data.message);
+            } else {
+                setError(error.message || "Something went wrong");
+            }
+        } finally {
+            setLoading(false);  //Done loading
         }
     };
 
@@ -54,7 +63,7 @@ function SignUpPage() {
                 <h2>Sign Up Page</h2>
 
                 {error &&  <p className="text-danger">
-                    {error.message || error.detail || 'Something went wrong'}
+                    {error}
                 </p>}
 
                 <form onSubmit={handleSignup}>
@@ -101,8 +110,8 @@ function SignUpPage() {
                         />
                     </div>
 
-                    <button type="submit" className="btn btn-primary w-100">
-                        Sign Up
+                    <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                        {loading ? "Signing Up..." : "Sign Up"}
                     </button>
                 </form>
 
