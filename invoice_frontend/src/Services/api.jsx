@@ -21,6 +21,26 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Response interceptor for better error handling
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('API error:', error.response?.data || error.message);
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            alert('Your session has expired. Please log in again.');
+            window.location.href = '/';
+            // Optionally redirect to login page or clear token
+            // localStorage.removeItem('token');
+            // window.location.href = '/login';
+        } else if (error.response?.status === 403) {
+            console.warn('Forbidden: You do not have the required permissions.');
+            alert('Forbidden: You do not have the required permissions.')
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const productService = {
     getAll: () => api.get('/products'),
     getById: (id) => api.get(`/products/${id}`),
@@ -30,8 +50,25 @@ export const productService = {
 };
 
 export const authService = {
-    signIn: (data) => api.post('/login', data),
+    signIn: async (data) => {
+        const response = await api.post('/login', data);
+        const token = response.data.accessToken; // Adjust based on backend respons
+        if (token) {
+            localStorage.setItem('token', token);
+        } else {
+            throw new Error('No access token received from server');
+        }
+        return response.data;
+    },
     signUp: (data) => api.post('/register', data),
+};
+
+export const customerService = {
+    create: (data) => api.post('/customers', data),
+    update: (id, data) => api.put(`/customers/${id}`, data),
+    delete: (id) => api.delete(`/customers/${id}`),
+    getAll: () => api.get('/customers'),
+    findByToken:(string) => api.get(`/customer/${string}`),
 };
 
 export default api;

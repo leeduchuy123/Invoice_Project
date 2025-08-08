@@ -15,10 +15,10 @@ const ProductList = () => {
                 console.log("Data from API:", response.data);
                 setProducts(response.data);
                 setLoading(false);
-            } catch (err) {
+            } catch (error) {
                 setError('Không thể tải danh sách sản phẩm');
                 setLoading(false);
-                console.error(err);
+                console.error(error);
             }
         };
         fetchProducts();
@@ -88,7 +88,9 @@ const ProductList = () => {
                                             <td>{product.name}</td>
                                             <td>{product.price}</td>
                                             <td>{product.unit}</td>
-                                            <button className="delete-button" onClick={() => handleDelete(product.id)}>Delete</button>
+                                            <td>
+                                                <button className="delete-button" onClick={() => handleDelete(product.id)}>Delete</button>
+                                            </td>
                                         </tr>
                                     ))}
                                     </tbody>

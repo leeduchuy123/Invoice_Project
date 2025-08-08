@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from 'axios';
 import {useNavigate, Link} from "react-router-dom";
 import '../assets/styles/Login.css';
+import {authService} from "../Services/api.jsx";
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -14,22 +14,33 @@ function LoginPage() {
     const handleLogin = async (e) => {
         e.preventDefault();
 
+        //Validate inputs:
+        if (!username || !password) {
+            setError('Please fill in all fields');
+            return;
+        }
+
         try {
-            if(!username || !password) {
-                setError('Please fill in all fields');
-                return;
+            //Use AuthService.signIn to handle
+            const response = await authService.signIn({username, password});
+            console.log('Login response:', response);
+
+            //Verify token exits before navigating
+            if(response.accessToken) {
+                navigate('/products');
+            } else {
+                setError('Login successful, but no token received. Please try again.');
             }
-
-            const response = await axios.post('http://localhost:8080/api/login', {
-                username,
-                password
-            });
-
-            console.log(response.data);
-            navigate('/products')
-        } catch(error) {
-            console.error('Login failed:', error.response ? error.response.data : error.message);
-            setError(error.response ? error.response.data : error.message);
+        } catch (error) {
+            console.error('Login failed:', error.response?.data || error.message);
+            // Handle specific error cases
+            const errorMessage =
+                error.response?.status === 401
+                    ? 'Invalid username or password'
+                    : error.response?.data?.message ||
+                    error.response?.data?.detail ||
+                    'Something went wrong';
+            setError(errorMessage);
         }
     };
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from "react-router-dom";
 import "../assets/styles/Signup.css";
+import {authService} from "../Services/api.jsx";
 
 
 function SignUpPage() {
@@ -26,34 +26,34 @@ function SignUpPage() {
 
         if(loading)     return;
 
+        if(!username || !email || !password || !confirmPassword) {
+            setError('Please fill in all fields.');
+            return;
+        }
+
+        if(password !== confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+
         try {
-            if(!username || !email || !password || !confirmPassword) {
-                setError('Please fill in all fields.');
-                return;
-            }
-
-            if(password !== confirmPassword) {
-                setError('Passwords do not match.');
-                return;
-            }
-
-            const response = await axios.post('http://localhost:8080/api/register', {
+            const response = await authService.signUp({
                 username,
                 email,
                 password
-            });
-
+            })
             console.log(response.data);
-            navigate('/')
-        } catch(error) {
-            console.error('Signup failed:', error.response ? error.response.data : error.message);
+            setLoading(false);
+            navigate("/");
+        } catch (error) {
+            setLoading(false); // Ensure loading is reset on error
+            // Check if the error response exists and has a message
             if (error.response && error.response.data && error.response.data.message) {
-                setError(error.response.data.message);
+                setError(error.response.data.message); // Display backend error message (e.g., "Username already exists")
             } else {
-                setError(error.message || "Something went wrong");
+                setError("An unexpected error occurred. Please try again.");
             }
-        } finally {
-            setLoading(false);  //Done loading
+            console.error('Signup failed:', error.response ? error.response.data : error.message);
         }
     };
 

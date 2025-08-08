@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreateRequest request) {
         Order createdOrder = orderService.createOrder(request);
@@ -25,6 +27,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @DeleteMapping("/{id}")
     public String deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
@@ -32,12 +35,14 @@ public class OrderController {
         return notification;
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
         List<OrderDTO> orderDTOs = orderService.getAllOrder();
         return ResponseEntity.ok(orderDTOs);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/page")
     public ResponseEntity<Page<OrderDTO>> getOrdersByPage(
         @RequestParam(defaultValue = "0") int page,
@@ -47,6 +52,7 @@ public class OrderController {
         return ResponseEntity.ok(pagedOrders);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/searchByCusName")
     public ResponseEntity<Page<OrderDTO>> searchOrdersByCustomerName(
             @RequestParam String keyword,
@@ -57,6 +63,7 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/searchByProductName")
     public ResponseEntity<Page<OrderDTO>> searchOrdersByProductName(
             @RequestParam String keyword,
@@ -67,12 +74,14 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/recent")
     public ResponseEntity<List<OrderDTO>> getRecentOrders() {
         List<OrderDTO> recentOrders = orderService.getRecentOrders();
         return ResponseEntity.ok(recentOrders);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping("/today-revenue")
     public ResponseEntity<Double> getTodayRevenue() {
         double revenue = orderService.getTodayRevenue();
