@@ -27,6 +27,7 @@ function LoginPage() {
 
             //Verify token exits before navigating
             if(response.accessToken) {
+                localStorage.setItem("token", response.accessToken);
                 navigate('/products');
             } else {
                 setError('Login successful, but no token received. Please try again.');

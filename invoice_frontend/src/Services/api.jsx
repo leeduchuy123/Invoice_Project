@@ -29,10 +29,9 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
             alert('Your session has expired. Please log in again.');
-            window.location.href = '/';
+
             // Optionally redirect to login page or clear token
-            // localStorage.removeItem('token');
-            // window.location.href = '/login';
+            window.location.href = '/';
         } else if (error.response?.status === 403) {
             console.warn('Forbidden: You do not have the required permissions.');
             alert('Forbidden: You do not have the required permissions.')

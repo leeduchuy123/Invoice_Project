@@ -92,12 +92,4 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
-
-    // Api /api/random yêu cầu phải xác thực mới có thể request
-    @GetMapping("/random")
-    public String randomStuff(){
-        System.out.println("JWT Hợp lệ mới có thể thấy được message này");
-
-        return "";
-    }
 }
