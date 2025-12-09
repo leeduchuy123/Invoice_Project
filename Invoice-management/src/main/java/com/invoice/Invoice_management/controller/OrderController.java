@@ -19,7 +19,7 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @PostMapping
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderCreateRequest request) {
         Order createdOrder = orderService.createOrder(request);
@@ -35,7 +35,7 @@ public class OrderController {
         return notification;
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+//    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
         List<OrderDTO> orderDTOs = orderService.getAllOrder();

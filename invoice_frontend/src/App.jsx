@@ -5,6 +5,7 @@ import EditProduct from './pages/EditProduct.jsx';
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import CustomerList from "./pages/CustomerList.jsx";
+import CreateOrderPage from "./pages/CreateOrderPage.jsx";
 
 const App = () => {
     return (
@@ -16,6 +17,7 @@ const App = () => {
                 <Route path="/products" element={<ProductList />} />
                 <Route path="/products/edit/:id" element={<EditProduct />} />
                 <Route path="/customers" element={<CustomerList />} />
+                <Route path="/orders/create" element={<CreateOrderPage />} />
             </Routes>
         </Router>
     );

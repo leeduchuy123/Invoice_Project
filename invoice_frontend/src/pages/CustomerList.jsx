@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import { customerService } from "../Services/api.jsx";
 import "../assets/styles/customerList.css";
 import Header from "../components/Header.jsx";
+import CustomerSearch from "./CustomerSearch.jsx";
 
 const CustomerList = () => {
     const[customers, setCustomers] = useState([]);
@@ -61,7 +62,10 @@ const CustomerList = () => {
             <div className="page-container">
                 <div className="title-bar">
                     <h2 className="page-title">Customer's List</h2>
-                    <button className="add-button" onClick={() => setShowForm(true)}>Add Customer</button>
+                    <div>
+                        <CustomerSearch onSearchResult={(result) => setCustomers(result)} />
+                        <button className="add-button" onClick={() => setShowForm(true)}>Add Customer</button>
+                    </div>
                 </div>
 
                 {customers.length === 0 ? (

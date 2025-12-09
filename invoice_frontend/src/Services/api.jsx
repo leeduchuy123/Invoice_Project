@@ -67,7 +67,7 @@ export const customerService = {
     update: (id, data) => api.put(`/customers/${id}`, data),
     delete: (id) => api.delete(`/customers/${id}`),
     getAll: () => api.get('/customers'),
-    findByToken:(string) => api.get(`/customer/${string}`),
+    findByToken:(string) => api.get(`/customers/${string}`),
 };
 
 export default api;
