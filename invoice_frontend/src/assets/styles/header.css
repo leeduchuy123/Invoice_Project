@@ -1,0 +1,38 @@
+header {
+    display: flex;
+    align-items: center;
+    background-color: dimgray;
+    padding: 12px 24px;
+    color: white;
+    justify-content: space-between;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav-link {
+    padding-left: 20px;
+    display: flex;
+    gap: 10px;
+}
+.nav-link a {
+    transition: color 0.2s ease;
+}
+.nav-link a:hover {
+    color: #00bcd4;
+}
+
+.nav-auth {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.nav-auth a {
+    transition: color 0.2s ease;
+}
+.nav-auth a:hover{
+    color:#00bcd4;
+}
+
